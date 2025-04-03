@@ -15,7 +15,6 @@ embed = {git = "https://github.com/ystyle/embed-cj", branch = "master"}
 ### 示例
 
 ```
-import embed.*
 import embed.macros.*
 
 // 嵌入到字符串
