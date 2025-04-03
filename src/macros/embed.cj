@@ -4,7 +4,7 @@ import std.ast.*
 import std.fs.{File,Directory, OpenMode, Path, FileInfo}
 import std.io.{readString, readToEnd}
 import std.collection.ArrayList
-import encoding.hex.toHexString
+import encoding.base64.toBase64String
 public import embed.{EmbedFS, addEmbedFile}
 
 
@@ -35,7 +35,7 @@ public macro EmbedDir(input: Tokens): Tokens {
     for (f in files) {
         let path = f.info.path.toString().replace(parent+'/', '')
         let bs = readToEnd(f)
-        let text = toHexString(bs)
+        let text = toBase64String(bs)
         let id = Token(TokenKind.IDENTIFIER, "f_${i}")
         lines += quote( 
             let $(id):String = $(text)

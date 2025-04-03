@@ -25,7 +25,7 @@ let cjpm:String = @EmbedString("cjpm.toml")
 let cjpmbs:Array<Byte> = @EmbedBytes("cjpm.toml")
 
 // 嵌入到EmbedFS（虚拟文件系统）
-let assets:EmbedFS = @EmbedDir(".")
+let assets:EmbedFS = @EmbedDir("testdata")
 
 main() {
     println(cjpm)
