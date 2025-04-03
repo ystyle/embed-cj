@@ -3,12 +3,13 @@ package embed
 import std.fs.Path
 import std.time.DateTime
 import std.collection.{HashMap, ArrayList}
+import encoding.hex.fromHexString
 
 public class EmbedFS <: ToString{
-    let files = HashMap<String, Array<Byte>>()
+    let files = HashMap<String, String>()
     let stats = HashMap<String, EmbedFileStat>()
     public init(){}
-    func addEmbedFile(path:String, data:Array<Byte>):Unit {
+    func addEmbedFile(path:String, data:String):Unit {
         this.files.add(path, data)
         let stat = EmbedFileStat(Path(path).fileName, path, data.size, data.size == 0, DateTime.now())
         this.stats.add(path, stat)
@@ -32,21 +33,20 @@ public class EmbedFS <: ToString{
         return dirFiles.toArray()
     }
     public func readFile(path:String):Array<Byte>{
-        let bs = this.files[path]
-        return bs
+        let text = this.files[path]
+        return fromHexString(text).getOrThrow()
     }
     public func toString ():String {
-        println("size: ${this.files.size}")
         return String.join(this.files.keys().toArray(), delimiter: '\n')
     }
 }   
 
 public class EmbedFile {
-    EmbedFile(let path:String, let data:Array<Byte>, let fileStat:EmbedFileStat) {
+    EmbedFile(let path:String, let data:String, let fileStat:EmbedFileStat) {
 
     }
     public func read(): Array<Byte> {
-        return this.data
+        return fromHexString(this.data).getOrThrow()
     }
     public func close(): Unit {
     }
@@ -70,6 +70,6 @@ public class EmbedFileStat {
     }
 }
 
-public func addEmbedFile(fs:EmbedFS, path:String, data:Array<Byte>):Unit {
+public func addEmbedFile(fs:EmbedFS, path:String, data:String):Unit {
     fs.addEmbedFile(path, data)
 }

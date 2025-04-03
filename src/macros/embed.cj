@@ -4,6 +4,9 @@ import std.ast.*
 import std.fs.{File,Directory, OpenMode, Path, FileInfo}
 import std.io.{readString, readToEnd}
 import std.collection.ArrayList
+import encoding.hex.toHexString
+public import embed.{EmbedFS, addEmbedFile}
+
 
 // 嵌入字符串
 public macro EmbedString(input: Tokens): Tokens {
@@ -26,17 +29,16 @@ public macro EmbedDir(input: Tokens): Tokens {
         diagReport(DiagReportLevel.ERROR, input, "嵌入目录错误", '嵌入目录应以相对项目根目录')
     }
     let parent = FileInfo(p).path.parent.toString()
-    println(parent)
     let files = listdirs(p)
     var lines = quote()
     var i = 0
     for (f in files) {
         let path = f.info.path.toString().replace(parent+'/', '')
-        println(path)
         let bs = readToEnd(f)
+        let text = toHexString(bs)
         let id = Token(TokenKind.IDENTIFIER, "f_${i}")
         lines += quote( 
-            let $(id):Array<Byte> = $(bs)
+            let $(id):String = $(text)
             addEmbedFile(fs, $(path), $(id))
          )
          i++
