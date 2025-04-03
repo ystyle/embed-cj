@@ -38,7 +38,7 @@ main() {
 - `EmbedFS` 代表嵌入文件系统
   - `public func open(path: Path): ?EmbedFile`: 打开文件
   - `public func readDir(path:Path):Array<EmbedFile>`: 读取目录
-  - `public func readFile(path:String):Array<Byte>`: 读取诊所
+  - `public func readFile(path:String):Array<Byte>`: 读取文件内容
 - `EmbedFile` 嵌入的文件对象
   - `public func read(): Array<Byte>`: 读取文件
   - `public func stat(): EmbedFileStat`: 反回文件元信息
