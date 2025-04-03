@@ -7,8 +7,10 @@
 - 嵌入目录到EmbedFS
 
 ### 安装
+```toml
 [dependencies]
-mustache = {git = "https://github.com/ystyle/embed-cj", branch = "master"}
+embed = {git = "https://github.com/ystyle/embed-cj", branch = "master"}
+```
 
 ### 示例
 
