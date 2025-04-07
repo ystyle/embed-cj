@@ -6,6 +6,7 @@ import std.io.{readString, readToEnd}
 import std.collection.ArrayList
 import encoding.base64.toBase64String
 public import embed.{EmbedFS, addEmbedFile}
+public import encoding.base64.fromBase64String
 
 
 // 嵌入字符串
@@ -19,7 +20,8 @@ public macro EmbedString(input: Tokens): Tokens {
 public macro EmbedBytes(input: Tokens): Tokens {
     let f = File(input[0].value, OpenMode.Read)
     let bs = readToEnd(f)
-    return quote( $(bs) )
+    let text = toBase64String(bs)
+    return quote( fromBase64String($(text)).getOrThrow() )
 }
 
 // 嵌入目录
