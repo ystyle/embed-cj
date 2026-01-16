@@ -3,7 +3,7 @@ package embed
 import std.fs.Path
 import std.time.DateTime
 import std.collection.{HashMap, ArrayList}
-import encoding.base64.fromBase64String
+import stdx.encoding.base64.fromBase64String
 
 public class EmbedFS <: ToString{
     let files = HashMap<String, String>()
@@ -39,7 +39,7 @@ public class EmbedFS <: ToString{
     public func toString ():String {
         return String.join(this.files.keys().toArray(), delimiter: '\n')
     }
-}   
+}
 
 public class EmbedFile {
     EmbedFile(let path:String, let data:String, let fileStat:EmbedFileStat) {

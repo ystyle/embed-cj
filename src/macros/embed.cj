@@ -4,9 +4,9 @@ import std.ast.*
 import std.fs.{File,Directory, OpenMode, Path, FileInfo}
 import std.io.{readString, readToEnd}
 import std.collection.ArrayList
-import encoding.base64.toBase64String
+import stdx.encoding.base64.toBase64String
 public import embed.{EmbedFS, addEmbedFile}
-public import encoding.base64.fromBase64String
+public import stdx.encoding.base64.fromBase64String
 
 
 // 嵌入字符串
@@ -39,7 +39,7 @@ public macro EmbedDir(input: Tokens): Tokens {
         let bs = readToEnd(f)
         let text = toBase64String(bs)
         let id = Token(TokenKind.IDENTIFIER, "f_${i}")
-        lines += quote( 
+        lines += quote(
             let $(id):String = $(text)
             addEmbedFile(fs, $(path), $(id))
          )
