@@ -9,7 +9,7 @@
 ### 安装
 ```toml
 [dependencies]
-embed = {git = "https://github.com/ystyle/embed-cj", branch = "master"}
+embed = "1.0.2" 
 ```
 
 ### 示例
