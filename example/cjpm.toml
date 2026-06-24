@@ -1,5 +1,5 @@
 [dependencies]
-embed = {path = "../"}
+embed = "1.0.3"
 [package]
   cjc-version = "0.59.6"
   compile-option = "--debug-macro"

@@ -1,3 +1,4 @@
 version = 0
 
 [requires]
+  embed = {version = "1.0.3"}
