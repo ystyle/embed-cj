@@ -15,8 +15,15 @@ func getPackageRoot(): ?String {
     while (idx < cmdLine.size) {
         if (cmdLine[idx] == "-p" && idx + 1 < cmdLine.size) {
             let pkgPath = cmdLine[idx + 1].toString()
-            if (let Some(srcPos) <- pkgPath.indexOf("/src/")) {
-                return Some(pkgPath[0..srcPos])
+            let sep = "/src"
+            if (let Some(srcPos) <- pkgPath.indexOf(sep)) {
+                let after = srcPos + sep.size
+                if (after >= pkgPath.size) {
+                    return Some(pkgPath[0..srcPos])
+                }
+                if (pkgPath[after..after + 1] == "/") {
+                    return Some(pkgPath[0..srcPos])
+                }
             }
             break
         }
