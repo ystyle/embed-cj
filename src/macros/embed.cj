@@ -1,7 +1,7 @@
 macro package embed.macros
 
 import std.ast.*
-import std.fs.{File, Directory, OpenMode, Path, FileInfo, exists}
+import std.fs.{File, Directory, OpenMode, Path, exists}
 import std.io.{readString, readToEnd}
 import std.collection.ArrayList
 import stdx.encoding.base64.toBase64String
@@ -39,7 +39,8 @@ public macro EmbedString(input: Tokens): Tokens {
     let filePath = resolvePath(input[0].value)
     let f = File(filePath, OpenMode.Read)
     let text = readString(f)
-    return quote( $(text) )
+    let t = Token(TokenKind.MULTILINE_RAW_STRING, text)
+    return quote( $(t) )
 }
 
 public macro EmbedBytes(input: Tokens): Tokens {
@@ -51,73 +52,46 @@ public macro EmbedBytes(input: Tokens): Tokens {
 }
 
 public macro EmbedDir(input: Tokens): Tokens {
-    let p = Path(input[0].value)
-    let dirName = p.toString()
-    
-    if (let Some(root) <- getPackageRoot()) {
-        let fullPath = Path(root).join(p)
-        
-        if (exists(fullPath)) {
-            
-            let files = listdirs(fullPath)
-            var lines = quote()
-            var fidx = 0
-            for (f in files) {
-                let relativePath = f.info.path.toString().replace(fullPath.toString() + "/", "")
-                let embedPath = "${dirName}/${relativePath}"
-                let bs = readToEnd(f)
-                let text = toBase64String(bs)
-                let id = Token(TokenKind.IDENTIFIER, "f_${fidx}")
-                lines += quote(
-                    let $(id):String = $(text)
-                    addEmbedFile(fs, $(embedPath), $(id))
-                )
-                fidx++
-            }
-            
-            return quote( {=>
-                let fs = EmbedFS()
-                $(lines)
-                return fs
-            }())
-        }
-    }
-    
-    if (p.isAbsolute()) {
+    let dirName = input[0].value
+
+    if (Path(dirName).isAbsolute()) {
         diagReport(DiagReportLevel.ERROR, input, "嵌入目录错误", '嵌入目录应以相对项目根目录')
     }
-    
-    let parent = FileInfo(p).path.parent
-    let files = listdirs(p)
+
+    let resolved = resolvePath(dirName)
+    let files = listdirs(Path(resolved))
     var lines = quote()
     var i = 0
-    for (f in files) {
-        let path = f.info.path.toString().replace(parent.toString() + '/', '')
-        let embedPath = "${dirName}/${path}"
+    for ((relPath, f) in files) {
+        let embedPath = "${dirName}/${relPath}"
         let bs = readToEnd(f)
         let text = toBase64String(bs)
         let id = Token(TokenKind.IDENTIFIER, "f_${i}")
         lines += quote(
             let $(id):String = $(text)
             addEmbedFile(fs, $(embedPath), $(id))
-         )
-         i++
+        )
+        i++
     }
 
     return quote( {=>
         let fs = EmbedFS()
         $(lines)
         return fs
-     }())
+    }())
 }
 
-func listdirs(path:Path):ArrayList<File> {
-    let files = ArrayList<File>()
+func listdirs(path:Path):ArrayList<(String, File)> {
+    let files = ArrayList<(String, File)>()
     Directory.walk(path, { f =>
+        let name = f.path.fileName
         if (f.isDirectory()) {
-            files.add(all: listdirs(f.path))
+            let subPrefix = "${name}/"
+            for ((relPath, file) in listdirs(f.path)) {
+                files.add(("${subPrefix}${relPath}", file))
+            }
         } else {
-            files.add(File(f.path, OpenMode.Read))
+            files.add((name, File(f.path, OpenMode.Read)))
         }
         return true
     })

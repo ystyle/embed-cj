@@ -10,7 +10,7 @@
   override-compile-option = ""
   src-dir = ""
   target-dir = ""
-  version = "1.0.4"
+  version = "1.0.5"
   include =["src"]
   exclude = ["example"]
   license = ["MulanPSL-2.0"]
