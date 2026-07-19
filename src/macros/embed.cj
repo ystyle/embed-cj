@@ -75,7 +75,7 @@ public macro EmbedDir(input: Tokens): Tokens {
         let text = toBase64String(bs)
         let id = Token(TokenKind.IDENTIFIER, "f_${i}")
         lines += quote(
-            let $(id):String = $(text)
+            let $(id):Array<Byte> = fromBase64String($(text)).getOrThrow()
             addEmbedFile(fs, $(embedPath), $(id))
         )
         i++
