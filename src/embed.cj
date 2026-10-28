@@ -108,3 +108,40 @@ public class EmbedFileStat {
 public func addEmbedFile(fs:EmbedFS, path:String, data:Array<Byte>):Unit {
     fs.addEmbedFile(path, data)
 }
+
+/**
+ * 从包源码目录（编译器 `-p` 参数）推出包根目录，推不出时返回空串。
+ *
+ * **必须同时接受 `/` 与 `\`**：Windows 上 `-p` 给的是 `D:\a\repo\src`。
+ * 旧实现写死 `indexOf("/src")`，在 Windows 上匹配不到 → 返回 None → 上层退回
+ * 相对路径 → `@EmbedString("public/css/x.css")` 按编译器 cwd 去找，报
+ * "The file ... does not exist"。这个 bug 只在 Windows 暴露，本地 Linux 永远绿。
+ *
+ * `src` 必须是**完整路径段**：`/a/srcfoo` 与 `/a/src-old` 都不算，
+ * 否则会把「恰好以 src 开头的兄弟目录」误当成包根。
+ */
+public func packageRootOf(pkgPath: String): String {
+    if (pkgPath == "") { return "" }
+    // 统一成正斜杠再切，最后按原串下标还原长度（两种分隔符都只占 1 字节，
+    // 且路径里不会出现多字节字符影响段边界，所以规范化后下标可直接用于原串）。
+    let normalized = pkgPath.replace("\\", "/")
+    var from = Int64(0)
+    while (true) {
+        let rest = normalized[from..normalized.size]
+        let idx = match (rest.indexOf("/src")) {
+            case Some(i) => i + from
+            case None => -1
+        }
+        if (idx < 0) { return "" }
+        let after = idx + 4
+        // 段边界：/src 之后要么到末尾，要么是分隔符
+        let isBoundary = after >= normalized.size || normalized[after..after + 1] == "/"
+        if (isBoundary && idx > 0) {
+            return pkgPath[0..idx]
+        }
+        from = idx + 4
+        if (from >= normalized.size) { return "" }
+    }
+    ""
+}
+

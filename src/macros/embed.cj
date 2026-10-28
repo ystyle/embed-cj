@@ -7,6 +7,7 @@ import std.collection.ArrayList
 import stdx.encoding.base64.toBase64String
 import std.env.getCommandLine
 public import embed.{EmbedFS, addEmbedFile}
+import embed.packageRootOf
 public import stdx.encoding.base64.fromBase64String
 
 func getPackageRoot(): ?String {
@@ -14,17 +15,8 @@ func getPackageRoot(): ?String {
     var idx = 0
     while (idx < cmdLine.size) {
         if (cmdLine[idx] == "-p" && idx + 1 < cmdLine.size) {
-            let pkgPath = cmdLine[idx + 1].toString()
-            let sep = "/src"
-            if (let Some(srcPos) <- pkgPath.indexOf(sep)) {
-                let after = srcPos + sep.size
-                if (after >= pkgPath.size) {
-                    return Some(pkgPath[0..srcPos])
-                }
-                if (pkgPath[after..after + 1] == "/") {
-                    return Some(pkgPath[0..srcPos])
-                }
-            }
+            let root = packageRootOf(cmdLine[idx + 1].toString())
+            if (root != "") { return Some(root) }
             break
         }
         idx++

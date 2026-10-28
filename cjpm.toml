@@ -10,9 +10,11 @@
   override-compile-option = ""
   src-dir = ""
   target-dir = ""
-  version = "1.0.7"
-  include =["src"]
-  exclude = ["example"]
+  version = "1.0.8"
+  # 锚定写法（前导 /）：未锚定的 "src" 含义是「任意层级同名」，会把 example/src
+  # 一并打进制品；未锚定的 "example" 同样只是碰巧挡住，换成别的目录名就失效。
+  include = ["/src"]
+  exclude = ["/example"]
   license = ["MulanPSL-2.0"]
   authors = ["ystyle"]
   repository = "https://atomgit.com/ystyle/embed-cj"
